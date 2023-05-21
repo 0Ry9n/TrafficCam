@@ -1,0 +1,16 @@
+python3 open_images_downloader.py --max-images=5000 --class-names "Car,Truck,Taxi,Ambulance,Bus,Motorcycle,Bicycle,Limousine" --data=data/Vehicles
+
+
+python3 train_ssd.py --data=data/Vehicles --model-dir=models/Vehicles --batch-size=2 —workers=1 --epochs=1
+
+python3 onnx_export.py --model-dir=models/Vehicles
+
+IMAGES=Vehicles/data/images   
+
+detectnet --model=models/Vehicles/ssd-mobilenet.onnx --labels=models/Vehicles/labels.txt \
+          --input-blob=input_0 --output-cvg=scores --output-bbox=boxes \
+            "$IMAGES/Vehicle_*.jpg" $IMAGES/test/Vehicle_%i.jpg
+
+detectnet --model=models/fruit/ssd-mobilenet.onnx --labels=models/fruit/labels.txt \
+          --input-blob=input_0 --output-cvg=scores --output-bbox=boxes \
+           v4l2:///dev/video0
